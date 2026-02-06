@@ -35,7 +35,7 @@
 <div class="relative z-10 w-full h-full">
     <div class="place-self-center text-white mt-50 absolute flex items-end">
         <p class="text-5xl">HOTBAR PRACTICE</p>
-        <p class="">v0.1</p>
+        <p class="">v1.0.0</p>
     </div>
     <div
         class="place-self-center text-white mt-100 absolute flex flex-col items-end"
