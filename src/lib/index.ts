@@ -1,5 +1,5 @@
 import { persisted, type Persisted } from "svelte-persisted-store";
-import { writable, type Writable } from "svelte/store";
+import { writable, get, type Writable } from "svelte/store";
 
 export const VERSION_KEY = "0.12";
 
@@ -17,12 +17,27 @@ export enum Item {
     Waterbucket,
 }
 
+export const itemImageMap: Record<Item, string | null> = {
+    [Item.None]: null,
+    [Item.Pickaxe]: "./pkaxe.webp",
+    [Item.Axe]: "./axe.webp",
+    [Item.Waterbucket]: "./bucket.webp",
+};
+
 export enum GameMode {
     Navigation,
     Sorting,
 }
 
 export let current_mode: Writable<GameMode> = writable(GameMode.Navigation);
+
+// Sorting mode state
+export let offhand_item: Writable<Item> = writable(Item.None);
+export let target_hotbar: Writable<Item[]> = writable([
+    Item.None, Item.None, Item.None, Item.None, Item.None,
+    Item.None, Item.None, Item.None, Item.None,
+]);
+export let selected_slot: Writable<number> = writable(0);
 
 export let hotbar: Writable<Item[]> = writable([
     Item.None,
@@ -157,6 +172,58 @@ export const validateAndResetSettings = (
         currentSettings.keybinds !== undefined &&
         currentSettings.options !== undefined
     );
+};
+
+// Sorting mode functions
+export const generateTargetHotbar = (): Item[] => {
+    const target = Array(9).fill(Item.None) as Item[];
+    target[0] = Item.Pickaxe;
+    target[1] = Item.Axe;
+    target[2] = Item.Waterbucket;
+    return target;
+};
+
+export const generateScrambledHotbar = (target: Item[]): Item[] => {
+    const items = target.filter((item) => item !== Item.None);
+    let scrambled: Item[];
+    do {
+        scrambled = Array(9).fill(Item.None) as Item[];
+        const positions = Array.from({ length: 9 }, (_, i) => i);
+        for (const item of items) {
+            const idx = Math.floor(Math.random() * positions.length);
+            scrambled[positions[idx]] = item;
+            positions.splice(idx, 1);
+        }
+    } while (arraysEqual(scrambled, target));
+    return scrambled;
+};
+
+export const arraysEqual = (a: Item[], b: Item[]): boolean => {
+    return a.length === b.length && a.every((v, i) => v === b[i]);
+};
+
+export const swapWithOffhand = (): void => {
+    const slot = get(selected_slot);
+    const currentHotbar = get(hotbar);
+    const currentOffhand = get(offhand_item);
+
+    const slotItem = currentHotbar[slot];
+    currentHotbar[slot] = currentOffhand;
+    hotbar.set([...currentHotbar]);
+    offhand_item.set(slotItem);
+};
+
+export const checkSortingWin = (): boolean => {
+    return arraysEqual(get(hotbar), get(target_hotbar));
+};
+
+export const startSortingRound = (): void => {
+    const target = generateTargetHotbar();
+    target_hotbar.set(target);
+    const scrambled = generateScrambledHotbar(target);
+    hotbar.set(scrambled);
+    offhand_item.set(Item.None);
+    selected_slot.set(0);
 };
 
 // Game durations

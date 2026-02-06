@@ -13,6 +13,10 @@
         current_mode,
         GameMode,
         check_updates,
+        selected_slot,
+        swapWithOffhand,
+        checkSortingWin,
+        startSortingRound,
     } from "$lib";
     import { onMount } from "svelte";
     import Options from "./Options.svelte";
@@ -63,8 +67,8 @@
         current_correct_clicks = 0;
 
         if ($current_mode === GameMode.Sorting) {
-            const newHotbar = randomise_hotbar($hotbar);
-            hotbar.set(newHotbar);
+            startSortingRound();
+            to_select = 0;
         }
 
         interval_id = setInterval(() => {
@@ -118,6 +122,11 @@
                 editing_keybind = null;
             } else if (
                 current_page === Page.Running &&
+                $current_mode === GameMode.Sorting
+            ) {
+                // In sorting mode, ignore mouse clicks for navigation scoring
+            } else if (
+                current_page === Page.Running &&
                 "Mouse" + e.button ===
                     $settings.keybinds[(to_select + 1).toString()]
             ) {
@@ -142,6 +151,28 @@
                     return sets;
                 });
                 editing_keybind = null;
+            } else if (
+                current_page === Page.Running &&
+                $current_mode === GameMode.Sorting
+            ) {
+                // Sorting mode: number keys select slot, offhand key swaps
+                for (let i = 1; i <= 9; i++) {
+                    if (e.key === $settings.keybinds[i.toString()]) {
+                        selected_slot.set(i - 1);
+                        to_select = i - 1;
+                        updateSelectedPosition();
+                        return;
+                    }
+                }
+                if (e.key === $settings.keybinds["offhand"]) {
+                    swapWithOffhand();
+                    if (checkSortingWin()) {
+                        current_correct_clicks! += 1;
+                        startSortingRound();
+                        to_select = 0;
+                        updateSelectedPosition();
+                    }
+                }
             } else if (
                 current_page === Page.Running &&
                 e.key === $settings.keybinds[(to_select + 1).toString()]

@@ -1,5 +1,14 @@
 <script lang="ts">
-    import { hotbar, settings } from "$lib";
+    import {
+        hotbar,
+        settings,
+        itemImageMap,
+        offhand_item,
+        target_hotbar,
+        current_mode,
+        GameMode,
+        Item,
+    } from "$lib";
     import { formatCorrectClicks, formatTime } from "$lib";
 
     let {
@@ -38,13 +47,48 @@
             Time: {formatTime(start_time)}
         </p>
     </div>
+
+    {#if $current_mode === GameMode.Sorting}
+        <!-- Target hotbar display -->
+        <div class="place-self-center absolute flex flex-col items-center" style="top: 55%;">
+            <p class="text-white text-lg mb-1">Target:</p>
+            <div class="flex">
+                {#each Array(9) as _, i}
+                    <div class="relative h-16 aspect-square">
+                        <img
+                            src="./slot.png"
+                            alt=""
+                            class="h-full w-full"
+                        />
+                        {#if itemImageMap[$target_hotbar[i]]}
+                            <img
+                                src={itemImageMap[$target_hotbar[i]]}
+                                alt=""
+                                class="absolute inset-0 w-3/4 h-3/4 m-auto object-contain pointer-events-none z-10"
+                            />
+                        {/if}
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {/if}
+
     <div class="flex justify-center items-center size-full gap-12">
         {#if $settings.options.offhand_enabled}
-            <img
-                src="./offhand.png"
-                alt=""
-                class="h-32 aspect-square shadow-2xl shadow-black place-self-center"
-            />
+            <div class="relative h-32 aspect-square">
+                <img
+                    src="./offhand.png"
+                    alt=""
+                    class="h-full w-full shadow-2xl shadow-black place-self-center"
+                />
+                {#if $current_mode === GameMode.Sorting && itemImageMap[$offhand_item]}
+                    <img
+                        src={itemImageMap[$offhand_item]}
+                        alt=""
+                        class="absolute inset-0 w-3/4 h-3/4 m-auto object-contain pointer-events-none z-10"
+                    />
+                {/if}
+            </div>
         {/if}
         <div class="flex">
             {#each Array(9) as _, i}
@@ -56,12 +100,22 @@
                         bind:this={slots[i]}
                     />
 
-                    <p
-                        class="absolute inset-0 flex items-center justify-center
-                               text-white text-xl pointer-events-none z-10"
-                    >
-                        {$hotbar[i]}
-                    </p>
+                    {#if $current_mode === GameMode.Sorting}
+                        {#if itemImageMap[$hotbar[i]]}
+                            <img
+                                src={itemImageMap[$hotbar[i]]}
+                                alt=""
+                                class="absolute inset-0 w-3/4 h-3/4 m-auto object-contain pointer-events-none z-10"
+                            />
+                        {/if}
+                    {:else}
+                        <p
+                            class="absolute inset-0 flex items-center justify-center
+                                   text-white text-xl pointer-events-none z-10"
+                        >
+                            {$hotbar[i]}
+                        </p>
+                    {/if}
                 </div>
             {/each}
         </div>
