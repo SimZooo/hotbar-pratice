@@ -1,7 +1,7 @@
 import { persisted, type Persisted } from "svelte-persisted-store";
 import { writable, get, type Writable } from "svelte/store";
 
-export const VERSION_KEY = "0.12";
+export const VERSION_KEY = "0.13";
 
 export enum Page {
     Main,
@@ -67,6 +67,7 @@ export let default_settings = {
     },
     options: {
         offhand_enabled: true,
+        sorting_target: [Item.Pickaxe, Item.Axe, Item.Waterbucket, Item.None, Item.None, Item.None, Item.None, Item.None, Item.None] as Item[],
     },
 };
 
@@ -76,7 +77,13 @@ export function check_updates() {
         stats.update((stats) => {
             console.log(stats.pb_correct_clicks);
             if (stats.pb_correct_clicks === undefined) {
-                return { pb_correct_clicks: 0 };
+                stats.pb_correct_clicks = 0;
+            }
+            if (stats.pb_navigation === undefined) {
+                stats.pb_navigation = 0;
+            }
+            if (stats.pb_sorting === undefined) {
+                stats.pb_sorting = 0;
             }
             return stats;
         });
@@ -89,18 +96,17 @@ export function check_updates() {
     });
 }
 
-export let settings: Persisted<{
-    version_key: string;
-    keybinds: object;
-    options: object;
-}> = persisted("settings", { ...default_settings });
+export let settings: Persisted<typeof default_settings> = persisted("settings", { ...default_settings });
 
-export let stats: Persisted<{ pb_correct_clicks: number }> = persisted(
-    "stats",
-    {
-        pb_correct_clicks: 0,
-    },
-);
+export let stats: Persisted<{
+    pb_correct_clicks: number;
+    pb_navigation: number;
+    pb_sorting: number;
+}> = persisted("stats", {
+    pb_correct_clicks: 0,
+    pb_navigation: 0,
+    pb_sorting: 0,
+});
 
 // Utility functions
 export const new_slot = (ignore: number[] | null): number => {
@@ -175,7 +181,10 @@ export const validateAndResetSettings = (
 };
 
 // Sorting mode functions
-export const generateTargetHotbar = (): Item[] => {
+export const generateTargetHotbar = (layout?: Item[]): Item[] => {
+    if (layout) {
+        return [...layout];
+    }
     const target = Array(9).fill(Item.None) as Item[];
     target[0] = Item.Pickaxe;
     target[1] = Item.Axe;
@@ -217,8 +226,8 @@ export const checkSortingWin = (): boolean => {
     return arraysEqual(get(hotbar), get(target_hotbar));
 };
 
-export const startSortingRound = (): void => {
-    const target = generateTargetHotbar();
+export const startSortingRound = (layout?: Item[]): void => {
+    const target = generateTargetHotbar(layout);
     target_hotbar.set(target);
     const scrambled = generateScrambledHotbar(target);
     hotbar.set(scrambled);

@@ -17,18 +17,24 @@
         onOptions: () => void;
         onTutorial: () => void;
     } = $props();
+
+    let showProjects = $state(false);
 </script>
 
-<div class="place-self-center text-white mt-50 absolute flex items-end">
+<div class="absolute left-1/2 -translate-x-1/2 text-white top-50 flex items-end">
     <p class="text-5xl">HOTBAR PRACTICE</p>
     <p class="">v1.0.0</p>
 </div>
 
 <div
-    class="place-self-center text-white mt-100 absolute flex flex-col text-2xl"
+    class="absolute left-1/2 -translate-x-1/2 text-white top-80 flex flex-col text-2xl"
 >
     <p>
-        PB: {formatCorrectClicks($stats.pb_correct_clicks || 0)} correct clicks
+        PB: {formatCorrectClicks(
+            ($current_mode === GameMode.Navigation
+                ? $stats.pb_navigation
+                : $stats.pb_sorting) || 0
+        )} correct clicks
     </p>
     {#if current_correct_clicks}
         <p>
@@ -39,12 +45,12 @@
 </div>
 
 <button
-    class="top-100 place-self-center absolute text-white text-2xl w-60 h-15 text-center items-center bg-[#6F6F6F] flex flex-col justify-center border-3 border-black hover:cursor-pointer text-shadow-black text-shadow-lg"
+    class="top-100 absolute left-1/2 -translate-x-1/2 text-white text-2xl w-60 h-15 text-center items-center bg-[#6F6F6F] flex flex-col justify-center border-3 border-black hover:cursor-pointer text-shadow-black text-shadow-lg"
     onclick={onStart}>Start</button
 >
 
 <div
-    class="top-180 place-self-center absolute text-white text-2xl flex flex-row gap-10"
+    class="top-180 absolute left-1/2 -translate-x-1/2 text-white text-2xl flex flex-row gap-10"
 >
     {#each Object.values(GameMode).filter((mode) => typeof mode === "string") as mode}
         <button
@@ -80,4 +86,34 @@
         class="text-white text-2xl w-60 h-15 text-center items-center bg-[#6F6F6F] flex flex-col justify-center border-3 border-black hover:cursor-pointer text-shadow-black text-shadow-lg"
         onclick={onTutorial}>How to Play</button
     >
+    <div class="relative">
+        <button
+            class="text-white text-2xl w-60 h-15 text-center items-center bg-[#6F6F6F] flex flex-col justify-center border-3 border-black hover:cursor-pointer text-shadow-black text-shadow-lg animate-pulse-subtle"
+            onclick={() => (showProjects = !showProjects)}>My Projects</button
+        >
+        {#if showProjects}
+            <div
+                class="absolute top-full right-0 mt-2 flex flex-col gap-2 bg-[#4F4F4F] border-3 border-black p-3 z-20"
+            >
+                <a
+                    href="https://foldrly.com"
+                    target="_blank"
+                    class="text-white text-lg hover:underline text-shadow-black text-shadow-lg"
+                    >Foldrly</a
+                >
+                <a
+                    href="https://specifai.info"
+                    target="_blank"
+                    class="text-white text-lg hover:underline text-shadow-black text-shadow-lg"
+                    >SpecifAI</a
+                >
+                <a
+                    href="https://trainflexi.com"
+                    target="_blank"
+                    class="text-white text-lg hover:underline text-shadow-black text-shadow-lg"
+                    >TrainFlexi</a
+                >
+            </div>
+        {/if}
+    </div>
 </div>

@@ -33,12 +33,12 @@
 </script>
 
 <div class="relative z-10 w-full h-full">
-    <div class="place-self-center text-white mt-50 absolute flex items-end">
+    <div class="absolute left-1/2 -translate-x-1/2 text-white top-50 flex items-end">
         <p class="text-5xl">HOTBAR PRACTICE</p>
         <p class="">v1.0.0</p>
     </div>
     <div
-        class="place-self-center text-white mt-100 absolute flex flex-col items-end"
+        class="absolute left-1/2 -translate-x-1/2 text-white top-80 flex flex-col items-end"
     >
         <p class="text-2xl">
             Correct Clicks: {formatCorrectClicks(current_correct_clicks || 0)}
@@ -50,7 +50,7 @@
 
     {#if $current_mode === GameMode.Sorting}
         <!-- Target hotbar display -->
-        <div class="place-self-center absolute flex flex-col items-center" style="top: 55%;">
+        <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center" style="top: 55%;">
             <p class="text-white text-lg mb-1">Target:</p>
             <div class="flex">
                 {#each Array(9) as _, i}
@@ -100,21 +100,12 @@
                         bind:this={slots[i]}
                     />
 
-                    {#if $current_mode === GameMode.Sorting}
-                        {#if itemImageMap[$hotbar[i]]}
-                            <img
-                                src={itemImageMap[$hotbar[i]]}
-                                alt=""
-                                class="absolute inset-0 w-3/4 h-3/4 m-auto object-contain pointer-events-none z-10"
-                            />
-                        {/if}
-                    {:else}
-                        <p
-                            class="absolute inset-0 flex items-center justify-center
-                                   text-white text-xl pointer-events-none z-10"
-                        >
-                            {$hotbar[i]}
-                        </p>
+                    {#if itemImageMap[$hotbar[i]]}
+                        <img
+                            src={itemImageMap[$hotbar[i]]}
+                            alt=""
+                            class="absolute inset-0 w-3/4 h-3/4 m-auto object-contain pointer-events-none z-10"
+                        />
                     {/if}
                 </div>
             {/each}

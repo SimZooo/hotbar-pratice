@@ -67,7 +67,7 @@
         current_correct_clicks = 0;
 
         if ($current_mode === GameMode.Sorting) {
-            startSortingRound();
+            startSortingRound($settings.options.sorting_target);
             to_select = 0;
         }
 
@@ -77,9 +77,13 @@
                 current_page = Page.Main;
                 start_time = 0;
 
-                if ($stats.pb_correct_clicks < current_correct_clicks!) {
+                const pb_key =
+                    $current_mode === GameMode.Navigation
+                        ? "pb_navigation"
+                        : "pb_sorting";
+                if ($stats[pb_key] < current_correct_clicks!) {
                     stats.update((stats) => {
-                        stats.pb_correct_clicks = current_correct_clicks!;
+                        stats[pb_key] = current_correct_clicks!;
                         return stats;
                     });
                 }
@@ -168,7 +172,7 @@
                     swapWithOffhand();
                     if (checkSortingWin()) {
                         current_correct_clicks! += 1;
-                        startSortingRound();
+                        startSortingRound($settings.options.sorting_target);
                         to_select = 0;
                         updateSelectedPosition();
                     }
@@ -246,7 +250,7 @@
     <a
         href="https://buymeacoffee.com/simzooo"
         target="_black"
-        class="absolute bottom-10 left-10 bg-[#FFDD00] flex flex-row gap-2 rounded items-center p-2"
+        class="absolute bottom-10 left-10 bg-[#FFDD00] hidden lg:flex flex-row gap-2 rounded items-center p-2"
     >
         <img
             src="https://cdn.buymeacoffee.com/widget/assets/coffee%20cup.svg"
